@@ -1,7 +1,6 @@
 std_msgs/Header header
-uint8 rem_id
-uint8 local_id
+uint8 remote_id
 uint8 rssi
-uint8 rem_rssi
+float32 rssi_dbm
 uint8 noise
-uint8 rem_noise
+float32 noise_dbm

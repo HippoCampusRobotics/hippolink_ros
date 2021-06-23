@@ -27,4 +27,11 @@ generate_messages(
 
 catkin_package()
 
+catkin_install_python(PROGRAMS
+  nodes/transceiver_node.py
+  nodes/data_processing_node.py
+  nodes/rate_watcher_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 include_directories(${catkin_INCLUDE_DIRS})

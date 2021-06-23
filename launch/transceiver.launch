@@ -1,0 +1,6 @@
+<launch>
+    <arg name="config_file_path" default="$(find hippolink_ros)/config/transceiver.yaml" />
+    <node pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen">
+        <rosparam command="load" file="$(arg config_file_path)" />
+    </node>
+</launch>

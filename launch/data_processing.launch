@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="hippolink_ros" type="data_processing_node.py" name="hippolink_data" output="screen"></node>
+</launch>
