@@ -1,6 +1,6 @@
 import threading
 
-import hippocampus_common.node
+from hippocampus_common.node import Node
 import rospy
 import serial
 from geometry_msgs.msg import PoseStamped
@@ -8,16 +8,16 @@ from hippocampus_msgs.msg import PoseIdStamped
 from hippolink_ros.msg import RadioRssiReport
 from hippolink import hippolink
 from hippolink_ros import common
-import re
+import multi_uuv
 
 
-class TransceiverNode(hippocampus_common.node.Node):
+class TransceiverNode(Node):
     def __init__(self, name):
         super(TransceiverNode, self).__init__(name=name)
         self.serial_lock = threading.RLock()
         self.data_lock = threading.RLock()
         self.port = self.init_serial_port()
-        self.node_id = self._get_node_id()
+        self.node_id = multi_uuv.get_vehicle_id()
         if self.node_id is None:
             exit(1)
         self.node_id = self.get_param("~node_id", 0)
@@ -50,28 +50,6 @@ class TransceiverNode(hippocampus_common.node.Node):
         radio_msg = common.ros2hippolink_pose(msg, self.node_id)
         with self.serial_lock:
             self.link.send(radio_msg)
-
-    def _get_node_id(self):
-        node_id = self.get_param("~node_id")
-        if node_id is not None:
-            return node_id
-        name = rospy.get_namespace().replace("/", "")
-        ids = re.findall(r"\d+", name)
-        ids = [int(x) for x in ids]
-        n_ids = len(ids)
-
-        if n_ids < 1:
-            rospy.logerr(
-                "[%s] Could not identify my ID from my namespace. "
-                "Shutting down.", name)
-            rospy.signal_shutdown("Could not identify ID")
-            return None
-        if n_ids > 1:
-            rospy.logwarn(
-                "There is more than one ID identified from my namespace")
-        rospy.loginfo("Using ID identified from namespace.")
-        self.set_param("~node_id", ids[0])
-        return ids[0]
 
     def run(self):
         r = rospy.Rate(50)

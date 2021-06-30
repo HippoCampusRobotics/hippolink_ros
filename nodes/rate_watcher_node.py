@@ -3,6 +3,7 @@ import rospy
 from hippocampus_common.node import Node
 from geometry_msgs.msg import PoseStamped
 import threading
+import multi_uuv
 
 
 class RateWatcherNode(Node):
@@ -20,7 +21,7 @@ class RateWatcherNode(Node):
     def init_subs(self):
         subs = dict()
         for id in self.topic_ids:
-            topic = "multi_uuv_pose_{}".format(id)
+            topic = multi_uuv.get_pose_name(id)
             subs[id] = rospy.Subscriber(topic,
                                         PoseStamped,
                                         self.on_multi_uuv_pose,
