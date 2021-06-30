@@ -1,6 +1,8 @@
 <launch>
+    <arg name="fake_transceiver" default="false" />
     <arg name="config_file_path" default="$(find hippolink_ros)/config/transceiver.yaml" />
-    <node pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen">
+    <node unless="$(arg fake_transceiver)" pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen">
         <rosparam command="load" file="$(arg config_file_path)" />
     </node>
+    <node if="$(arg fake_transceiver)" pkg="hippolink_ros" type="fake_transceiver_node.py" name="hippolink" output="screen" />
 </launch>

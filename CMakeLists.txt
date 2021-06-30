@@ -31,6 +31,7 @@ catkin_install_python(PROGRAMS
   nodes/transceiver_node.py
   nodes/data_processing_node.py
   nodes/rate_watcher_node.py
+  nodes/fake_transceiver_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

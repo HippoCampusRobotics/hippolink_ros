@@ -5,6 +5,7 @@ from hippocampus_common.node import Node
 from geometry_msgs.msg import PoseStamped
 from hippocampus_msgs.msg import PoseIdStamped
 from hippolink_ros.msg import RadioRssiReport
+import multi_uuv
 
 
 class HippoLinkProcessing(Node):
@@ -40,8 +41,7 @@ class HippoLinkProcessing(Node):
             self.pubs[key].publish(msg)
 
     def on_multi_uuv_pose(self, msg: PoseIdStamped):
-        id = msg.pose_id.id
-        key = "multi_uuv_pose_{}".format(id)
+        key = multi_uuv.get_pose_name(msg.pose_id.id)
         out = PoseStamped()
         out.header.stamp = msg.header.stamp
         out.header.frame_id = msg.header.frame_id
