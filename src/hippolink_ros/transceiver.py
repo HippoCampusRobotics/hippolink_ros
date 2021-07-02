@@ -17,7 +17,7 @@ class TransceiverNode(Node):
         self.serial_lock = threading.RLock()
         self.data_lock = threading.RLock()
         self.port = self.init_serial_port()
-        self.node_id = multi_uuv.get_vehicle_id()
+        self.node_id = multi_uuv.get_vehicle_number()
         if self.node_id is None:
             exit(1)
         self.node_id = self.get_param("~node_id", 0)
