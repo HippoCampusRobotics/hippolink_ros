@@ -1,14 +1,15 @@
 import threading
 
-from hippocampus_common.node import Node
+import multi_uuv
 import rospy
 import serial
 from geometry_msgs.msg import PoseStamped
-from hippocampus_msgs.msg import PoseIdStamped
-from hippolink_ros.msg import RadioRssiReport
+from hippocampus_common.node import Node
+from hippocampus_msgs.msg import PathFollowerTarget
 from hippolink import hippolink
-from hippolink_ros import common
-import multi_uuv
+
+import hippolink_ros
+from hippolink_ros.msg import RadioRssiReport
 
 
 class TransceiverNode(Node):
@@ -22,22 +23,22 @@ class TransceiverNode(Node):
             exit(1)
         self.node_id = self.get_param("~node_id", 0)
         self.link = hippolink.HippoLink(self.port, self.node_id)
-        self.init_pubs()
-        self.init_subs()
-
-    def init_pubs(self):
         self.pubs = dict()
-        self.pubs["pose"] = rospy.Publisher("multi_uuv_pose",
-                                            PoseIdStamped,
-                                            queue_size=10)
-        self.pubs["rssi"] = rospy.Publisher("radio_rssi",
-                                            RadioRssiReport,
-                                            queue_size=10)
+        self.init_subs()
 
     def init_subs(self):
         self.subs = dict()
         self.subs["mavros_pose"] = rospy.Subscriber(
             "mavros/local_position/pose", PoseStamped, self.on_mavros_pose)
+
+        self.subs["path_follower_target"] = rospy.Subscriber(
+            "path_follower/target", PathFollowerTarget,
+            self.on_path_follower_target)
+
+    def on_path_folower_target(self, msg: PathFollowerTarget):
+        radio_msg = hippolink_ros.ros2hippolink_path_target_2d_min(msg)
+        with self.serial_lock:
+            self.link.send(radio_msg)
 
     def init_serial_port(self):
         baud = self.get_param("~baud", 57600)
@@ -46,8 +47,8 @@ class TransceiverNode(Node):
         port = serial.Serial(port, baudrate=baud, timeout=timeout)
         return port
 
-    def on_mavros_pose(self, msg):
-        radio_msg = common.ros2hippolink_pose(msg, self.node_id)
+    def on_mavros_pose(self, msg: PoseStamped):
+        radio_msg = hippolink_ros.ros2hippolink_pose(msg, self.node_id)
         with self.serial_lock:
             self.link.send(radio_msg)
 
@@ -68,16 +69,41 @@ class TransceiverNode(Node):
             self.publish_pose(msg)
         elif msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_RADIO_RSSI_REPORT:
             self.publish_rssi(msg)
+        elif msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_PATH_TARGET:
+            self.publish_path_target(msg)
+        elif msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_POSE_2D_MIN:
+            self.publish_path_target(msg)
+        elif msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_PATH_TARGET_2D_MIN:
+            self.publish_path_target(msg)
         else:
-            print(msg)
+            rospy.logwarn("Unhandled message with ID: {}".format(msg_id))
 
     def publish_pose(self, radio_msg):
-        msg = common.hippolink2ros_pose(radio_msg, rospy.Time.now())
-        self.pubs["pose"].publish(msg)
+        msg, vehicle_number = hippolink_ros.hippolink2ros_pose(
+            radio_msg, rospy.Time.now())
+        name = hippolink_ros.get_pose_name(vehicle_number)
+        if name not in self.pubs:
+            self.pubs[name] = rospy.Publisher(name, PoseStamped, queue_size=10)
+        self.pubs[name].publish(msg)
 
     def publish_rssi(self, radio_msg):
-        msg = common.hippolink2ros_rssi(radio_msg, rospy.Time.now())
-        self.pubs["rssi"].publish(msg)
+        msg = hippolink_ros.hippolink2ros_rssi(radio_msg, rospy.Time.now())
+        topic = hippolink_ros.get_rssi_name(msg.remote_id)
+        if topic not in self.pubs:
+            self.pubs[topic] = rospy.Publisher(topic,
+                                               RadioRssiReport,
+                                               queue_size=10)
+        self.pubs[topic].publish(msg)
+
+    def publish_path_target(self, radio_msg):
+        msg = hippolink_ros.hippolink2ros_path_target(radio_msg,
+                                                      rospy.Time.now())
+        name = hippolink_ros.get_path_target_name(radio_msg.get_node_id())
+        if name not in self.pubs:
+            self.pubs[name] = rospy.Publisher(name,
+                                              PathFollowerTarget,
+                                              queue_size=10)
+        self.pubs[name].publish(msg)
 
 
 def main():
