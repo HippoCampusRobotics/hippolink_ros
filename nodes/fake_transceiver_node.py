@@ -5,6 +5,7 @@ from hippocampus_common.node import Node
 from hippocampus_msgs.msg import PathFollowerTarget
 from geometry_msgs.msg import PoseStamped
 import multi_uuv
+import hippolink_ros
 
 
 class FakeTransceiver(Node):
@@ -38,13 +39,13 @@ class FakeTransceiver(Node):
         return pubs
 
     def on_pose(self, msg: PoseStamped, id: int):
-        name = multi_uuv.get_pose_name(id)
+        name = hippolink_ros.get_pose_name(id)
         if name not in self.pubs:
             self.pubs[name] = rospy.Publisher(name, PoseStamped, queue_size=10)
         self.pubs[name].publish(msg)
 
     def on_path_target(self, msg: PathFollowerTarget, id: int):
-        name = "multi_uuv_path_target_{}".format(id)
+        name = hippolink_ros.get_path_target_name(id)
         if name in self.pubs:
             self.pubs[name].publish(msg)
         else:
