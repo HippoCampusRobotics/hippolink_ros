@@ -35,7 +35,7 @@ class TransceiverNode(Node):
             "path_follower/target", PathFollowerTarget,
             self.on_path_follower_target)
 
-    def on_path_folower_target(self, msg: PathFollowerTarget):
+    def on_path_follower_target(self, msg: PathFollowerTarget):
         radio_msg = hippolink_ros.ros2hippolink_path_target_2d_min(msg)
         with self.serial_lock:
             self.link.send(radio_msg)
