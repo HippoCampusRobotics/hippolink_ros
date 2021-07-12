@@ -124,7 +124,7 @@ def ros2hippolink_path_target(ros_msg: PathFollowerTarget):
 
 def ros2hippolink_path_target_2d_min(ros_msg: PathFollowerTarget):
     pos = ros_msg.target_position
-    msg = hl.msgs.HippoLink_path_target_2d_min_meesage(
+    msg = hl.msgs.HippoLink_path_target_2d_min_message(
         x=pos.x / 1000.0, y=pos.y / 1000.0, index=ros_msg.target_index)
     return msg
 
