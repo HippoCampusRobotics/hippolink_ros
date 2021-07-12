@@ -89,7 +89,9 @@ def ros2hippolink_pose_2d_min(ros_msg):
     quat = ros_msg.pose.orientation
     (_, _, yaw) = tf.transformations.euler_from_quaternion(
         [quat.x, quat.y, quat.z, quat.w])
-    msg = hl.msgs.HippoLink_pose_2d_min_message(x=pos.x, y=pos.y, yaw=yaw)
+    msg = hl.msgs.HippoLink_pose_2d_min_message(x=int(pos.x * 1000),
+                                                y=inr(pos.y * 1000),
+                                                yaw=int(yaw * 1000))
     return msg
 
 
@@ -125,7 +127,7 @@ def ros2hippolink_path_target(ros_msg: PathFollowerTarget):
 def ros2hippolink_path_target_2d_min(ros_msg: PathFollowerTarget):
     pos = ros_msg.target_position
     msg = hl.msgs.HippoLink_path_target_2d_min_message(
-        x=pos.x / 1000.0, y=pos.y / 1000.0, index=ros_msg.target_index)
+        x=int(pos.x * 1000), y=int(pos.y * 1000), index=ros_msg.target_index)
     return msg
 
 
