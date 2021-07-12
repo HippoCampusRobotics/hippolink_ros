@@ -48,7 +48,7 @@ class TransceiverNode(Node):
         return port
 
     def on_mavros_pose(self, msg: PoseStamped):
-        radio_msg = hippolink_ros.ros2hippolink_pose(msg, self.node_id)
+        radio_msg = hippolink_ros.ros2hippolink_pose(msg)
         with self.serial_lock:
             self.link.send(radio_msg)
 
