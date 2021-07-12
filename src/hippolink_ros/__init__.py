@@ -71,7 +71,7 @@ def hippolink2ros_pose(hippolink_msg, stamp):
     return ros_msg, hippolink_msg.id
 
 
-def ros2hippolink_pose(ros_msg, node_id):
+def ros2hippolink_pose(ros_msg):
     pos = ros_msg.pose.position
     quat = ros_msg.pose.orientation
     msg = hl.msgs.HippoLink_pose_message(x=pos.x,
@@ -84,7 +84,7 @@ def ros2hippolink_pose(ros_msg, node_id):
     return msg
 
 
-def ros2hippolink_pose_2d_min(ros_msg, node_id):
+def ros2hippolink_pose_2d_min(ros_msg):
     pos = ros_msg.pose.position
     quat = ros_msg.pose.orientation
     (_, _, yaw) = tf.transformations.euler_from_quaternion(
@@ -113,7 +113,7 @@ def hippolink2ros_path_target(hippolink_msg, stamp):
     return ros_msg
 
 
-def ros2hippolink_path_target(ros_msg: PathFollowerTarget, node_id):
+def ros2hippolink_path_target(ros_msg: PathFollowerTarget):
     pos = ros_msg.target_position
     msg = hl.msgs.HippoLink_path_target_message(x=pos.x,
                                                 y=pos.y,
@@ -122,7 +122,7 @@ def ros2hippolink_path_target(ros_msg: PathFollowerTarget, node_id):
     return msg
 
 
-def ros2hippolink_path_target_2d_min(ros_msg: PathFollowerTarget, node_id):
+def ros2hippolink_path_target_2d_min(ros_msg: PathFollowerTarget):
     pos = ros_msg.target_position
     msg = hl.msgs.HippoLink_path_target_2d_min_meesage(
         x=pos.x / 1000.0, y=pos.y / 1000.0, index=ros_msg.target_index)
