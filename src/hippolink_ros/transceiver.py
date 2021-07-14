@@ -18,11 +18,12 @@ class TransceiverNode(Node):
         self.serial_lock = threading.RLock()
         self.data_lock = threading.RLock()
         self.port = self.init_serial_port()
-        self.node_id = multi_uuv.get_vehicle_number()
-        if self.node_id is None:
+
+        self.vehicle_number = multi_uuv.get_vehicle_number()
+        if self.vehicle_number is None:
             exit(1)
-        self.node_id = self.get_param("~node_id", 0)
-        self.link = hippolink.HippoLink(self.port, self.node_id)
+
+        self.link = hippolink.HippoLink(self.port, self.vehicle_number)
         self.pubs = dict()
         self.init_subs()
 
@@ -45,6 +46,9 @@ class TransceiverNode(Node):
         port = self.get_param("~port", "/dev/ttyUSB0")
         timeout = self.get_param("~timeout", 0.1)
         port = serial.Serial(port, baudrate=baud, timeout=timeout)
+        rospy.sleep(1.0)
+        port.write(b"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0")
+        rospy.sleep(0.5)
         return port
 
     def on_mavros_pose(self, msg: PoseStamped):
@@ -65,6 +69,10 @@ class TransceiverNode(Node):
 
     def handle_radio_msg(self, msg):
         msg_id = msg.get_msg_id()
+        if msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_BAD_DATA:
+            rospy.logwarn("Received bad data!")
+        else:
+            rospy.logdebug("Handling %s", msg.name)
         if msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_POSE:
             self.publish_pose(msg)
         elif msg_id == hippolink.msgs.HIPPOLINK_MSG_ID_RADIO_RSSI_REPORT:

@@ -1,8 +1,12 @@
 <launch>
     <arg name="fake_transceiver" default="false" />
     <arg name="config_file_path" default="$(find hippolink_ros)/config/transceiver.yaml" />
-    <node unless="$(arg fake_transceiver)" pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen">
+    <arg name="vehicle_number" default="" />
+    <node unless="$(arg fake_transceiver)" pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen" clear_params="true">
         <rosparam command="load" file="$(arg config_file_path)" />
+        <param unless="$(eval arg('vehicle_number') == '')" name="vehicle_number" value="$(arg vehicle_number)" />
     </node>
-    <node if="$(arg fake_transceiver)" pkg="hippolink_ros" type="fake_transceiver_node.py" name="hippolink" output="screen" />
+    <node if="$(arg fake_transceiver)" pkg="hippolink_ros" type="fake_transceiver_node.py" name="hippolink" output="screen" clear_params="true">
+        <param unless="$(eval arg('vehicle_number') == '')" name="vehicle_number" value="$(arg vehicle_number)" />
+    </node>
 </launch>

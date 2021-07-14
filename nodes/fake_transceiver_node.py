@@ -14,6 +14,8 @@ class FakeTransceiver(Node):
                          anonymous=anonymous,
                          disable_signals=disable_signals)
         self.vehicle_id = multi_uuv.get_vehicle_number()
+        if self.vehicle_id is None:
+            exit(1)
         self.pubs = self.init_pubs()
         self.subs = self.init_subs()
 
