@@ -2,7 +2,7 @@
     <arg name="fake_transceiver" default="false" />
     <arg name="config_file_path" default="$(find hippolink_ros)/config/transceiver.yaml" />
     <arg name="vehicle_number" default="" />
-    <group unless= $(arg fake_transceiver)>
+    <group unless="$(arg fake_transceiver)">
         <node pkg="hippolink_ros" type="transceiver_node.py" name="hippolink" output="screen" clear_params="true">
             <rosparam command="load" file="$(arg config_file_path)" />
             <param unless="$(eval arg('vehicle_number') == '')" name="vehicle_number" value="$(arg vehicle_number)" />
