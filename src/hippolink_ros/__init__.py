@@ -68,7 +68,7 @@ def hippolink2ros_pose(hippolink_msg, stamp):
             "HippoLink message for pose has unexpected ID: {}".format(
                 hippolink_msg.id))
 
-    return ros_msg, hippolink_msg.id
+    return ros_msg, hippolink_msg.get_node_id()
 
 
 def ros2hippolink_pose(ros_msg):
