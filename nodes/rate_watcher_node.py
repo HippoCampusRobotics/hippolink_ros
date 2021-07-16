@@ -63,6 +63,7 @@ class RateWatcherNode(Node):
 
         if len(self.dt[topic]) > self.window_size:
             self.dt[topic].pop(0)
+            self.publish_rate(topic)
 
     def run(self):
         r = rospy.Rate(1.0)
@@ -78,12 +79,15 @@ class RateWatcherNode(Node):
                                   topic)
                 else:
                     self.t_last[topic] = self.tn[topic]
-                    mean = sum(self.dt[topic]) / len(self.dt[topic])
-                    f = 1.0 / mean if mean > 0 else 0
-                    msg = Float64()
-                    msg.data = f
-                    self.pubs[topic].publish(msg)
+                    self.publish_rate(topic)
             r.sleep()
+
+    def publish_rate(self, topic):
+        mean = sum(self.dt[topic]) / len(self.dt[topic])
+        f = 1.0 / mean if mean > 0 else 0
+        msg = Float64()
+        msg.data = f
+        self.pubs[topic].publish(msg)
 
 
 def main():
