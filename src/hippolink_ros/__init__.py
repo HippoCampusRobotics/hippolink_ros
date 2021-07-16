@@ -90,7 +90,7 @@ def ros2hippolink_pose_2d_min(ros_msg):
     (_, _, yaw) = tf.transformations.euler_from_quaternion(
         [quat.x, quat.y, quat.z, quat.w])
     msg = hl.msgs.HippoLink_pose_2d_min_message(x=int(pos.x * 1000),
-                                                y=inr(pos.y * 1000),
+                                                y=int(pos.y * 1000),
                                                 yaw=int(yaw * 1000))
     return msg
 
